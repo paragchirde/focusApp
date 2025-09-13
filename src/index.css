@@ -2,76 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Revolutionary Focus Timer Design System - Peaceful & Distraction-Free */
+/* Notion-Inspired Design System - Warm Earth Tones */
 
 @layer base {
   :root {
-    /* Notion-inspired neutral palette */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 22%;
+    /* Earth-tone inspired base colors */
+    --background: 60 21% 98%;        /* #fefae0 - warm cream background */
+    --foreground: 24 56% 12%;        /* #283618 - deep forest text */
 
-    /* Card system for organized sections */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 22%;
+    /* Card system */
+    --card: 0 0% 100%;               /* Pure white for cards */
+    --card-foreground: 24 56% 12%;   /* Deep forest for card text */
 
     /* Overlays and popovers */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 22%;
+    --popover-foreground: 24 56% 12%;
 
-    /* Clean primary - Notion blue */
-    --primary: 211 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 211 100% 50%;
+    /* Primary - Olive green */
+    --primary: 74 39% 30%;           /* #606c38 - olive green */
+    --primary-foreground: 60 21% 98%; /* Cream text on primary */
+    --primary-hover: 74 39% 25%;     /* Darker olive on hover */
 
-    /* Gentle secondary tones */
-    --secondary: 0 0% 97%;
-    --secondary-foreground: 0 0% 22%;
+    /* Secondary - Light cream */
+    --secondary: 60 21% 96%;         /* Lighter cream */
+    --secondary-foreground: 24 56% 12%;
 
     /* Muted elements */
-    --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 47%;
+    --muted: 60 21% 94%;             /* Very light cream */
+    --muted-foreground: 24 56% 35%;  /* Lighter forest */
 
-    /* Accent for highlights */
-    --accent: 0 0% 97%;
-    --accent-foreground: 0 0% 22%;
+    /* Accent - Warm amber */
+    --accent: 35 69% 61%;            /* #dda15e - warm amber */
+    --accent-foreground: 24 56% 12%;
 
-    /* Gentle destructive */
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Success - Primary olive */
+    --success: 74 39% 30%;           /* Same as primary */
+    --success-foreground: 60 21% 98%;
 
-    /* Clean borders and inputs */
-    --border: 0 0% 89%;
-    --input: 0 0% 89%;
-    --ring: 211 100% 50%;
+    /* Warning - Burnt orange */
+    --warning: 30 65% 45%;           /* #bc6c25 - burnt orange */
+    --warning-foreground: 60 21% 98%;
 
-    /* Success colors for completed sessions */
-    --success: 134 61% 41%;
-    --success-foreground: 0 0% 100%;
+    /* Destructive - Muted red */
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 60 21% 98%;
 
-    /* Warning for interruptions */
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 100%;
+    /* Borders and inputs - subtle earth tones */
+    --border: 60 21% 88%;            /* Subtle cream border */
+    --input: 60 21% 96%;             /* Light cream input background */
+    --ring: 74 39% 30%;              /* Olive focus ring */
 
     /* Timer specific colors */
-    --timer-active: 0 0% 22%;
-    --timer-paused: 0 0% 47%;
-    --timer-break: 211 100% 50%;
+    --timer-active: 24 56% 12%;      /* Deep forest */
+    --timer-paused: 24 56% 35%;      /* Lighter forest */
+    --timer-break: 74 39% 30%;       /* Olive green */
 
-    /* Peaceful gradients */
-    --gradient-peaceful: linear-gradient(135deg, hsl(212 100% 95%), hsl(215 20% 98%));
-    --gradient-focus: linear-gradient(135deg, hsl(212 100% 47%), hsl(212 100% 65%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(215 20% 98%));
+    /* Notion-like gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(60 21% 98%), hsl(60 21% 96%));
+    --gradient-primary: linear-gradient(135deg, hsl(74 39% 30%), hsl(74 39% 35%));
+    --gradient-accent: linear-gradient(135deg, hsl(35 69% 61%), hsl(35 69% 65%));
 
-    /* Elegant shadows */
-    --shadow-peaceful: 0 4px 20px -8px hsl(215 25% 20% / 0.1);
-    --shadow-focus: 0 8px 30px -10px hsl(212 100% 47% / 0.2);
-    --shadow-card: 0 2px 12px -4px hsl(215 25% 20% / 0.08);
+    /* Refined shadows */
+    --shadow-sm: 0 1px 3px 0 hsl(24 56% 12% / 0.05);
+    --shadow-md: 0 4px 8px -2px hsl(24 56% 12% / 0.08);
+    --shadow-lg: 0 10px 25px -5px hsl(24 56% 12% / 0.10);
+    --shadow-card: 0 2px 8px -2px hsl(24 56% 12% / 0.06);
 
-    /* Animation timings */
-    --transition-peaceful: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-    --transition-gentle: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Smooth transitions */
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -91,33 +92,40 @@
   }
 
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 89%;
+    --background: 24 56% 8%;         /* Dark forest background */
+    --foreground: 60 21% 95%;        /* Light cream text */
 
-    --card: 0 0% 13%;
-    --card-foreground: 0 0% 89%;
+    --card: 24 56% 12%;              /* Darker forest cards */
+    --card-foreground: 60 21% 95%;
 
-    --popover: 0 0% 13%;
-    --popover-foreground: 0 0% 89%;
+    --popover: 24 56% 12%;
+    --popover-foreground: 60 21% 95%;
 
-    --primary: 211 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 35 69% 61%;           /* Amber primary in dark */
+    --primary-foreground: 24 56% 12%;
+    --primary-hover: 35 69% 55%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 89%;
+    --secondary: 24 56% 15%;         /* Darker forest secondary */
+    --secondary-foreground: 60 21% 95%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 47%;
+    --muted: 24 56% 18%;             /* Muted dark forest */
+    --muted-foreground: 60 21% 65%;
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 89%;
+    --accent: 74 39% 40%;            /* Brighter olive in dark */
+    --accent-foreground: 60 21% 95%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --success: 35 69% 61%;           /* Amber success */
+    --success-foreground: 24 56% 12%;
 
-    --border: 0 0% 27%;
-    --input: 0 0% 27%;
-    --ring: 211 100% 50%;
+    --warning: 30 65% 55%;           /* Brighter orange */
+    --warning-foreground: 24 56% 12%;
+
+    --destructive: 0 65% 60%;
+    --destructive-foreground: 60 21% 95%;
+
+    --border: 24 56% 25%;            /* Dark border */
+    --input: 24 56% 15%;             /* Dark input */
+    --ring: 35 69% 61%;              /* Amber focus ring */
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -135,11 +143,66 @@
   }
 
   body {
-    @apply bg-background text-foreground font-light;
+    @apply bg-background text-foreground font-normal antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+
+  /* Remove default focus outlines and create custom ones */
+  *:focus {
+    outline: none;
+  }
+
+  /* Custom focus styles for better UX */
+  input:focus-visible,
+  textarea:focus-visible,
+  button:focus-visible,
+  select:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }
 
 @layer components {
+  /* Notion-inspired component styles */
+  
+  /* Card enhancements */
+  .notion-card {
+    @apply bg-card border border-border rounded-lg shadow-sm transition-shadow duration-200;
+    box-shadow: var(--shadow-card);
+  }
+  
+  .notion-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Input styles - no blue outlines */
+  .notion-input {
+    @apply w-full px-3 py-2 text-sm bg-input border border-border rounded-md;
+    @apply placeholder:text-muted-foreground;
+    @apply focus:ring-2 focus:ring-ring focus:ring-offset-0 focus:border-transparent;
+    @apply transition-colors duration-200;
+  }
+
+  /* Button styles */
+  .notion-button {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    @apply disabled:pointer-events-none disabled:opacity-50;
+    transition: var(--transition-base);
+  }
+
+  .notion-button-primary {
+    @apply notion-button bg-primary text-primary-foreground hover:bg-primary-hover;
+  }
+
+  .notion-button-secondary {
+    @apply notion-button bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  .notion-button-ghost {
+    @apply notion-button hover:bg-accent hover:text-accent-foreground;
+  }
+
   /* Timer breathing animation */
   .timer-breathing {
     animation: breathe 4s ease-in-out infinite;
@@ -147,26 +210,12 @@
   
   @keyframes breathe {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
+    50% { transform: scale(1.015); }
   }
 
-  /* Peaceful transitions */
-  .peaceful-transition {
-    transition: var(--transition-peaceful);
-  }
-
-  .gentle-transition {
-    transition: var(--transition-gentle);
-  }
-
-  /* Focus glow effect */
-  .focus-glow {
-    box-shadow: var(--shadow-focus);
-  }
-
-  /* Card shadows */
-  .card-shadow {
-    box-shadow: var(--shadow-card);
+  /* Smooth transitions */
+  .notion-transition {
+    transition: var(--transition-smooth);
   }
 
   /* Timeline dot styles */
@@ -188,5 +237,26 @@
 
   .timeline-dot-complete {
     @apply bg-success;
+  }
+
+  /* Typography hierarchy */
+  .notion-heading-xl {
+    @apply text-3xl font-semibold text-foreground tracking-tight;
+  }
+
+  .notion-heading-lg {
+    @apply text-2xl font-semibold text-foreground tracking-tight;
+  }
+
+  .notion-heading-md {
+    @apply text-xl font-medium text-foreground;
+  }
+
+  .notion-text {
+    @apply text-sm text-foreground;
+  }
+
+  .notion-text-muted {
+    @apply text-sm text-muted-foreground;
   }
 }

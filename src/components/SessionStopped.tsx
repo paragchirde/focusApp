@@ -22,46 +22,46 @@ export function SessionStopped({
   const focusPercentage = Math.round((focusedTime / duration) * 100);
 
   return (
-    <div className="space-y-8">
-      <Card className="card-shadow">
-        <CardContent className="p-12 text-center">
+    <div className="max-w-2xl mx-auto space-y-6">
+      <Card>
+        <CardContent className="p-8 text-center">
           <div className="mb-8">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h1 className="text-3xl font-medium text-foreground mb-2">
+            <h1 className="notion-heading-xl mb-2">
               Session Stopped
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Task: <span className="font-medium text-foreground">{task}</span>
+            <p className="notion-text-muted">
+              Task: <span className="notion-text font-medium">{task}</span>
             </p>
           </div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="p-6 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-semibold text-foreground">{focusedTime} min</div>
-              <div className="text-sm text-muted-foreground">Focused Time</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="p-6 bg-secondary rounded-lg border border-border">
+              <div className="text-2xl font-semibold text-foreground mb-1">{focusedTime} min</div>
+              <div className="notion-text-muted">Focused Time</div>
             </div>
-            <div className="p-6 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-semibold text-foreground">{interruptionCount}</div>
-              <div className="text-sm text-muted-foreground">Interruptions</div>
+            <div className="p-6 bg-secondary rounded-lg border border-border">
+              <div className="text-2xl font-semibold text-foreground mb-1">{interruptionCount}</div>
+              <div className="notion-text-muted">Interruptions</div>
             </div>
-            <div className="p-6 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-semibold text-foreground">{focusPercentage}%</div>
-              <div className="text-sm text-muted-foreground">Focus Efficiency</div>
+            <div className="p-6 bg-secondary rounded-lg border border-border">
+              <div className="text-2xl font-semibold text-foreground mb-1">{focusPercentage}%</div>
+              <div className="notion-text-muted">Focus Efficiency</div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-medium text-foreground mb-4">Take a break?</h3>
+              <h3 className="notion-heading-md mb-4">Take a break?</h3>
               <div className="flex flex-wrap justify-center gap-3 mb-6">
                 <Button
                   onClick={() => onStartBreak('short')}
                   variant="outline"
-                  className="px-6 py-3 hover:bg-muted gentle-transition"
+                  size="default"
                 >
                   <Zap className="w-4 h-4 mr-2" />
                   5 min break
@@ -69,7 +69,7 @@ export function SessionStopped({
                 <Button
                   onClick={() => onStartBreak('medium')}
                   variant="outline"
-                  className="px-6 py-3 hover:bg-muted gentle-transition"
+                  size="default"
                 >
                   <Clock className="w-4 h-4 mr-2" />
                   15 min break
@@ -77,7 +77,7 @@ export function SessionStopped({
                 <Button
                   onClick={() => onStartBreak('long')}
                   variant="outline"
-                  className="px-6 py-3 hover:bg-muted gentle-transition"
+                  size="default"
                 >
                   <Clock className="w-4 h-4 mr-2" />
                   25 min break
@@ -87,7 +87,7 @@ export function SessionStopped({
             
             <Button
               onClick={onNewSession}
-              className="px-8 py-3 bg-primary hover:bg-primary/90 gentle-transition"
+              size="lg"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Start New Session
