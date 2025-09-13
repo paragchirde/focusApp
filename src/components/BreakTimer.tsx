@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Pause, Play, Square, Coffee } from "lucide-react";
+import { Pause, Play, Square, Coffee, Heart, Leaf, Sun, Sparkles, Wind, Droplets, TreePine, Smile, Eye, Clock, Apple, Users, Mountain, Book, Music2, Move } from "lucide-react";
 
 interface BreakTimerProps {
   breakType: 'short' | 'medium' | 'long';
@@ -60,40 +60,74 @@ export function BreakTimer({ breakType, onComplete, onSkip }: BreakTimerProps) {
 
   const breakMessages = {
     short: [
-      "Take a deep breath and relax",
-      "Stretch your body and mind",
-      "Look away from the screen",
+      "Take a deep breath and let your mind settle 🌸",
+      "Your eyes deserve a gentle rest from the screen",
+      "Stretch your body and feel the tension melt away",
+      "A moment of mindfulness can refresh your spirit",
+      "Look out the window and let nature calm you",
+      "Roll your shoulders and release the stress",
+      "Close your eyes and listen to your breathing"
     ],
     medium: [
-      "Step away from your workspace",
-      "Take a short walk outside",
-      "Hydrate and nourish yourself",
-      "Do some light stretching",
+      "Step away and give yourself some loving space",
+      "Take a mindful walk and reconnect with yourself",
+      "Nourish your body with something wholesome",
+      "Do some gentle stretches to awaken your muscles",
+      "Spend a moment in gratitude for your progress",
+      "Let fresh air fill your lungs and clear your mind",
+      "Practice a few minutes of peaceful meditation"
     ],
     long: [
-      "Take a proper break from work",
-      "Go for a walk in nature",
-      "Have a healthy snack",
-      "Practice mindfulness",
-      "Connect with others",
+      "This is your time to truly rest and recharge",
+      "Take a meaningful walk in nature's embrace",
+      "Enjoy a nourishing meal mindfully and slowly",
+      "Connect with someone you care about",
+      "Practice mindfulness and be present in this moment",
+      "Move your body in ways that feel good",
+      "Read something inspiring or listen to calming music",
+      "Rest deeply - you've earned this peaceful time"
     ],
   };
 
-  const currentMessage = breakMessages[breakType][
-    Math.floor(Math.random() * breakMessages[breakType].length)
-  ];
+  // Cycling through messages with smooth transitions
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [isMessageVisible, setIsMessageVisible] = useState(true);
+
+  // Cycle through messages every 8 seconds with fade transition
+  useEffect(() => {
+    const messageInterval = setInterval(() => {
+      setIsMessageVisible(false);
+      
+      setTimeout(() => {
+        setCurrentMessageIndex((prev) => 
+          (prev + 1) % breakMessages[breakType].length
+        );
+        setIsMessageVisible(true);
+      }, 300); // Half-second fade out before changing
+    }, 8000);
+
+    return () => clearInterval(messageInterval);
+  }, [breakType]);
+
+  const currentMessage = breakMessages[breakType][currentMessageIndex];
 
   return (
-    <Card className="card-shadow focus-glow bg-gradient-to-br from-timer-break/5 to-background">
-      <CardContent className="p-12 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-timer-break/5 flex items-center justify-center p-4">
+      <Card className="card-shadow focus-glow bg-gradient-to-br from-background/95 via-background to-timer-break/10 backdrop-blur-sm border border-timer-break/20 max-w-2xl w-full">
+      <CardContent className="p-8 sm:p-12 text-center relative overflow-hidden">
         <div className="mb-8">
-          <Coffee className="w-16 h-16 text-timer-break mx-auto mb-4" />
-          <h1 className="text-4xl font-light text-foreground mb-2">
+          <div className="relative">
+            <Coffee className="w-16 h-16 text-timer-break mx-auto mb-4 animate-pulse" />
+            <Heart className="w-6 h-6 text-red-400 absolute top-0 right-1/2 translate-x-8 animate-bounce" />
+          </div>
+          <h1 className="text-4xl font-light text-foreground mb-4 animate-fade-in">
             {config.label}
           </h1>
-          <p className="text-xl text-muted-foreground">
-            {currentMessage}
-          </p>
+          <div className={`transition-opacity duration-300 ${isMessageVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <p className="text-xl text-muted-foreground leading-relaxed px-4">
+              {currentMessage}
+            </p>
+          </div>
         </div>
 
         {/* Timer Display */}
@@ -108,33 +142,89 @@ export function BreakTimer({ breakType, onComplete, onSkip }: BreakTimerProps) {
         </div>
 
         {/* Break Suggestions */}
-        <div className="bg-timer-break/10 rounded-xl p-6 mb-8">
-          <h3 className="font-medium text-foreground mb-3">
-            Break Ideas:
-          </h3>
-          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+        <div className="bg-gradient-to-r from-timer-break/10 to-primary/5 rounded-xl p-6 mb-8 border border-timer-break/20">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-timer-break" />
+            <h3 className="font-medium text-foreground">
+              Gentle Break Ideas
+            </h3>
+            <Sparkles className="w-5 h-5 text-timer-break" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             {breakType === 'short' && (
               <>
-                <div>• Deep breathing</div>
-                <div>• Eye exercises</div>
-                <div>• Neck stretches</div>
-                <div>• Drink water</div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Wind className="w-4 h-4 text-blue-400" />
+                  <span>Deep breathing exercises</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Eye className="w-4 h-4 text-green-400" />
+                  <span>Gentle eye movements</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Move className="w-4 h-4 text-purple-400" />
+                  <span>Neck and shoulder stretches</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Droplets className="w-4 h-4 text-cyan-400" />
+                  <span>Sip some refreshing water</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Sun className="w-4 h-4 text-yellow-400" />
+                  <span>Look at something distant</span>
+                </div>
               </>
             )}
             {breakType === 'medium' && (
               <>
-                <div>• Short walk</div>
-                <div>• Light snack</div>
-                <div>• Quick meditation</div>
-                <div>• Fresh air</div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <TreePine className="w-4 h-4 text-green-500" />
+                  <span>Short mindful walk</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Apple className="w-4 h-4 text-red-400" />
+                  <span>Healthy light snack</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Heart className="w-4 h-4 text-pink-400" />
+                  <span>Brief meditation</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Wind className="w-4 h-4 text-blue-400" />
+                  <span>Step outside for fresh air</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Smile className="w-4 h-4 text-yellow-400" />
+                  <span>Practice gratitude</span>
+                </div>
               </>
             )}
             {breakType === 'long' && (
               <>
-                <div>• Outdoor walk</div>
-                <div>• Proper meal</div>
-                <div>• Social time</div>
-                <div>• Exercise</div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Mountain className="w-4 h-4 text-green-600" />
+                  <span>Nature walk or outdoor time</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Apple className="w-4 h-4 text-red-500" />
+                  <span>Nourishing meal</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Users className="w-4 h-4 text-purple-400" />
+                  <span>Connect with loved ones</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Move className="w-4 h-4 text-orange-400" />
+                  <span>Full body stretching</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Book className="w-4 h-4 text-indigo-400" />
+                  <span>Read something inspiring</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-background/50">
+                  <Music2 className="w-4 h-4 text-pink-500" />
+                  <span>Listen to calming music</span>
+                </div>
               </>
             )}
           </div>
@@ -175,6 +265,7 @@ export function BreakTimer({ breakType, onComplete, onSkip }: BreakTimerProps) {
           </Button>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }
