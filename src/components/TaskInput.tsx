@@ -40,13 +40,13 @@ export function TaskInput({ onStartSession }: TaskInputProps) {
 
   return (
     <Card className="card-shadow gentle-transition hover:shadow-lg">
-      <CardContent className="p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-light text-foreground mb-2">
+      <CardContent className="p-4 sm:p-8">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-light text-foreground mb-2">
               What would you like to focus on?
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base sm:text-lg">
               Create a distraction-free environment for deep work
             </p>
           </div>
@@ -60,7 +60,7 @@ export function TaskInput({ onStartSession }: TaskInputProps) {
               value={task}
               onChange={(e) => setTask(e.target.value)}
               placeholder="e.g., Write project proposal, Study chapter 5..."
-              className="text-lg py-6 border-2 focus:border-primary gentle-transition"
+              className="text-base sm:text-lg py-4 sm:py-6 border-2 focus:border-primary gentle-transition"
               autoFocus
             />
           </div>
@@ -128,7 +128,7 @@ export function TaskInput({ onStartSession }: TaskInputProps) {
           <Button
             type="submit"
             disabled={!task.trim() || (useCustom && !isValidCustomDuration)}
-            className="w-full py-6 text-lg bg-primary hover:bg-primary-glow gentle-transition group"
+            className="w-full py-4 sm:py-6 text-base sm:text-lg bg-primary hover:bg-primary-glow gentle-transition group"
           >
             <Play className="w-5 h-5 mr-2 group-hover:scale-110 gentle-transition" />
             Start Focus Session

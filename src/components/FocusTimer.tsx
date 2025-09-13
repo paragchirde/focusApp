@@ -251,33 +251,33 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
     <div className="space-y-8">
       {/* Timer Card */}
       <Card className="card-shadow focus-glow">
-        <CardContent className="p-12 text-center">
-          <div className="mb-8">
-            <h2 className="text-2xl font-light text-muted-foreground mb-2">
+        <CardContent className="p-6 sm:p-12 text-center">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-2xl font-light text-muted-foreground mb-2">
               Focusing on
             </h2>
-            <h1 className="text-4xl font-medium text-foreground">
+            <h1 className="text-2xl sm:text-4xl font-medium text-foreground break-words">
               {task}
             </h1>
           </div>
 
           {/* Timer Display */}
-          <div className={`mb-8 ${isRunning ? 'timer-breathing' : ''}`}>
-            <div className="text-8xl font-light text-timer-active mb-4 tabular-nums">
+          <div className={`mb-6 sm:mb-8 ${isRunning ? 'timer-breathing' : ''}`}>
+            <div className="text-5xl sm:text-8xl font-light text-timer-active mb-4 tabular-nums">
               {formatTime(timeLeft)}
             </div>
             <Progress 
               value={progress} 
-              className="h-2 mb-6"
+              className="h-2 mb-4 sm:mb-6"
             />
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Button
               onClick={handlePlayPause}
               size="lg"
-              className={`px-8 py-6 rounded-full text-lg gentle-transition ${
+              className={`w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-6 rounded-full text-base sm:text-lg gentle-transition ${
                 isRunning 
                   ? 'bg-muted hover:bg-muted/80 text-muted-foreground' 
                   : 'bg-primary hover:bg-primary/90'
@@ -285,36 +285,38 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
             >
               {isRunning ? (
                 <>
-                  <Pause className="w-6 h-6 mr-2" />
+                  <Pause className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                   Pause
                 </>
               ) : (
                 <>
-                  <Play className="w-6 h-6 mr-2" />
+                  <Play className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                   {timeLeft === totalDuration ? 'Start' : 'Resume'}
                 </>
               )}
             </Button>
 
-            <Button
-              onClick={handleStop}
-              variant="outline"
-              size="lg"
-              className="px-6 py-6 rounded-full border hover:bg-muted gentle-transition"
-            >
-              <Square className="w-5 h-5 mr-2" />
-              Stop
-            </Button>
+            <div className="flex gap-3 sm:gap-4 w-full sm:w-auto">
+              <Button
+                onClick={handleStop}
+                variant="outline"
+                size="lg"
+                className="flex-1 sm:flex-initial px-4 sm:px-6 py-4 sm:py-6 rounded-full border hover:bg-muted gentle-transition"
+              >
+                <Square className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                <span className="hidden sm:inline">Stop</span>
+              </Button>
 
-            <Button
-              onClick={onReset}
-              variant="outline"
-              size="lg"
-              className="px-6 py-6 rounded-full border hover:bg-muted gentle-transition"
-            >
-              <RotateCcw className="w-5 h-5 mr-2" />
-              Reset
-            </Button>
+              <Button
+                onClick={onReset}
+                variant="outline"
+                size="lg"
+                className="flex-1 sm:flex-initial px-4 sm:px-6 py-4 sm:py-6 rounded-full border hover:bg-muted gentle-transition"
+              >
+                <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                <span className="hidden sm:inline">Reset</span>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

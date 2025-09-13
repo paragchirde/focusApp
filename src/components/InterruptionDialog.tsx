@@ -104,7 +104,7 @@ export function InterruptionDialog({ open, onSubmit, pauseDuration }: Interrupti
           {/* Quick Reason Buttons */}
           <div className="space-y-2">
             <Label>Common reasons:</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {commonReasons.map((commonReason) => (
                 <Button
                   key={commonReason}
@@ -112,7 +112,7 @@ export function InterruptionDialog({ open, onSubmit, pauseDuration }: Interrupti
                   variant="outline"
                   size="sm"
                   onClick={() => setReason(commonReason)}
-                  className="text-left justify-start"
+                  className="text-left justify-start text-xs sm:text-sm"
                 >
                   {commonReason}
                 </Button>
