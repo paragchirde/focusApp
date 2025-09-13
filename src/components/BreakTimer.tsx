@@ -118,7 +118,6 @@ export function BreakTimer({ breakType, onComplete, onSkip }: BreakTimerProps) {
         <div className="mb-8">
           <div className="relative">
             <Coffee className="w-16 h-16 text-timer-break mx-auto mb-4 animate-pulse" />
-            <Heart className="w-6 h-6 text-red-400 absolute top-0 right-1/2 translate-x-8 animate-bounce" />
           </div>
           <h1 className="text-4xl font-light text-foreground mb-4 animate-fade-in">
             {config.label}
