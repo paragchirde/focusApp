@@ -4,22 +4,42 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Music, Pause, Play, SkipForward, Volume2, VolumeX } from "lucide-react";
 
+// Temporary solution: Use generated audio for ambient sounds
+const generateAmbientAudio = (frequency: number, duration: number = 30) => {
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const gainNode = audioContext.createGain();
+  const oscillator = audioContext.createOscillator();
+  
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+  gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  return { oscillator, gainNode, audioContext };
+};
+
 const MUSIC_TRACKS = [
   {
-    title: "Focus Jazz Cafe",
-    src: "https://cdn.pixabay.com/audio/2023/01/04/audio_e6ecb06e79.mp3"
+    title: "Calm Ambient",
+    src: "ambient-calm", // Will be handled by Web Audio API
+    frequency: 220
   },
   {
-    title: "Lofi Study Beats",
-    src: "https://cdn.pixabay.com/audio/2022/10/25/audio_78ca2ba3fe.mp3"
+    title: "Focus Tone",
+    src: "ambient-focus",
+    frequency: 440
   },
   {
-    title: "Calm Piano",
-    src: "https://cdn.pixabay.com/audio/2022/11/27/audio_1e4a091dd9.mp3"
+    title: "Deep Focus",
+    src: "ambient-deep",
+    frequency: 174
   },
   {
-    title: "Peaceful Background",
-    src: "https://cdn.pixabay.com/audio/2023/02/28/audio_eb80b67cea.mp3"
+    title: "Peaceful",
+    src: "ambient-peace",
+    frequency: 528
   }
 ];
 
@@ -40,95 +60,97 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previousVolume = useRef(0.3);
 
-  // Initialize audio with CDN optimization
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+
+  // Initialize Web Audio API for ambient sounds
   useEffect(() => {
     setIsLoading(true);
-    const audio = new Audio();
     
-    // Optimize for CDN streaming
-    audio.crossOrigin = "anonymous";
-    audio.preload = "auto";
-    audio.volume = volume[0];
-    audio.loop = false;
-    
-    // Set source after configuring
-    audio.src = MUSIC_TRACKS[currentTrackIndex].src;
-    
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
+    try {
+      const currentTrack = MUSIC_TRACKS[currentTrackIndex];
+      
+      // Create Web Audio API context for ambient sounds
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const gainNode = audioContext.createGain();
+      const oscillator = audioContext.createOscillator();
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(currentTrack.frequency, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(volume[0] * 0.1, audioContext.currentTime); // Very low volume for ambient
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      audioContextRef.current = audioContext;
+      oscillatorRef.current = oscillator;
+      gainNodeRef.current = gainNode;
+      
       setIsLoading(false);
-      // Auto-start music if timer is running
+      setDuration(30); // 30 second ambient sounds
+      
+      // Auto-start if timer is running
       if (isTimerRunning && !isPlaying) {
         setIsPlaying(true);
         onMusicToggle(true);
-        audio.play().catch(console.error);
+        oscillator.start();
       }
-    };
-    const handleCanPlayThrough = () => {
+      
+    } catch (error) {
+      console.warn('Web Audio API not supported, disabling music');
       setIsLoading(false);
-      // Auto-start music if timer is running
-      if (isTimerRunning && !isPlaying) {
-        setIsPlaying(true);
-        onMusicToggle(true);
-        audio.play().catch(console.error);
-      }
-    };
-    const handleWaiting = () => setIsLoading(true);
-    const handleError = (e: Event) => {
-      console.warn('Audio loading error, trying next track:', e);
-      setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
-    };
-    const handleEnded = () => {
-      setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('canplaythrough', handleCanPlayThrough);
-    audio.addEventListener('waiting', handleWaiting);
-    audio.addEventListener('error', handleError);
-    audio.addEventListener('ended', handleEnded);
-    
-    audioRef.current = audio;
+      setIsPlaying(false);
+      onMusicToggle(false);
+    }
 
     return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
-      audio.removeEventListener('waiting', handleWaiting);
-      audio.removeEventListener('error', handleError);
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
-    };
-  }, [currentTrackIndex, volume]);
-
-  // Sync with timer state and auto-start music
-  useEffect(() => {
-    if (!audioRef.current) return;
-
-    if (isTimerRunning) {
-      // Auto-start music when timer is running
-      if (!isPlaying) {
-        setIsPlaying(true);
-        onMusicToggle(true);
+      if (oscillatorRef.current) {
+        try {
+          oscillatorRef.current.stop();
+        } catch (e) {
+          // Oscillator already stopped
+        }
       }
-      audioRef.current.play().catch(console.error);
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, [currentTrackIndex, volume, isTimerRunning, isPlaying, onMusicToggle]);
+
+  // Sync with timer state
+  useEffect(() => {
+    if (!oscillatorRef.current || !audioContextRef.current) return;
+
+    if (isTimerRunning && isPlaying) {
+      if (audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume();
+      }
     } else {
-      audioRef.current.pause();
+      if (audioContextRef.current.state === 'running') {
+        audioContextRef.current.suspend();
+      }
     }
-  }, [isTimerRunning, isPlaying, onMusicToggle]);
+  }, [isTimerRunning, isPlaying]);
 
   const togglePlayPause = () => {
     const newIsPlaying = !isPlaying;
     setIsPlaying(newIsPlaying);
     onMusicToggle(newIsPlaying);
+    
+    if (!audioContextRef.current) return;
+    
+    if (newIsPlaying) {
+      audioContextRef.current.resume();
+    } else {
+      audioContextRef.current.suspend();
+    }
   };
 
   const handleVolumeChange = (newVolume: number[]) => {
     setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume[0];
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.setValueAtTime(newVolume[0] * 0.1, audioContextRef.current?.currentTime || 0);
     }
     if (newVolume[0] > 0 && isMuted) {
       setIsMuted(false);
@@ -136,17 +158,17 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
   };
 
   const toggleMute = () => {
-    if (!audioRef.current) return;
+    if (!gainNodeRef.current || !audioContextRef.current) return;
     
     if (isMuted) {
       setIsMuted(false);
       setVolume([previousVolume.current]);
-      audioRef.current.volume = previousVolume.current;
+      gainNodeRef.current.gain.setValueAtTime(previousVolume.current * 0.1, audioContextRef.current.currentTime);
     } else {
       previousVolume.current = volume[0];
       setIsMuted(true);
       setVolume([0]);
-      audioRef.current.volume = 0;
+      gainNodeRef.current.gain.setValueAtTime(0, audioContextRef.current.currentTime);
     }
   };
 
