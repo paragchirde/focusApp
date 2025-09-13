@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 
 type AppState = 
   | { type: 'input' }
-  | { type: 'focus'; task: string; duration: number }
+  | { type: 'focus'; task: string; duration: number; enableMusic?: boolean }
   | { type: 'complete'; task: string; duration: number; summary: { focusedTime: number; interruptionCount: number; totalTime: number; timelineEvents: any[] } }
   | { type: 'stopped'; task: string; duration: number; summary: { focusedTime: number; interruptionCount: number; totalTime: number } }
   | { type: 'break'; breakType: 'short' | 'medium' | 'long' };
@@ -17,8 +17,13 @@ const Index = () => {
   const [state, setState] = useState<AppState>({ type: 'input' });
   const { toast } = useToast();
 
-  const handleStartSession = (task: string, duration: number) => {
-    setState({ type: 'focus', task, duration });
+  const handleStartSession = (task: string, duration: number, enableMusic: boolean) => {
+    setState({ 
+      type: 'focus', 
+      task, 
+      duration, 
+      enableMusic 
+    });
     toast({
       title: "Focus session started",
       description: `Focusing on: ${task} for ${duration} minutes`,
@@ -96,6 +101,7 @@ const Index = () => {
             <FocusTimer
               task={state.task}
               initialDuration={state.duration}
+              enableMusic={state.enableMusic || false}
               onComplete={handleSessionComplete}
               onReset={handleReset}
               onStop={handleStop}

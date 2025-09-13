@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Play, Music } from "lucide-react";
 
 interface TaskInputProps {
-  onStartSession: (task: string, duration: number) => void;
+  onStartSession: (task: string, duration: number, enableMusic: boolean) => void;
 }
 
 const PRESET_DURATIONS = [
@@ -23,6 +24,7 @@ export function TaskInput({ onStartSession }: TaskInputProps) {
   const [duration, setDuration] = useState<number>(25);
   const [customDuration, setCustomDuration] = useState("");
   const [useCustom, setUseCustom] = useState(false);
+  const [enableMusic, setEnableMusic] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +32,7 @@ export function TaskInput({ onStartSession }: TaskInputProps) {
     
     const finalDuration = useCustom ? parseInt(customDuration) : duration;
     if (finalDuration >= 1 && finalDuration <= 180) {
-      onStartSession(task.trim(), finalDuration);
+      onStartSession(task.trim(), finalDuration, enableMusic);
     }
   };
 
@@ -123,9 +125,32 @@ export function TaskInput({ onStartSession }: TaskInputProps) {
                 </div>
               )}
             </div>
-          </div>
+            </div>
 
-          <Button
+            {/* Music Option */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="enable-music" 
+                  checked={enableMusic}
+                  onCheckedChange={(checked) => setEnableMusic(checked as boolean)}
+                />
+                <Label 
+                  htmlFor="enable-music" 
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                >
+                  <Music className="w-4 h-4 text-primary" />
+                  Play calming background music during focus session
+                </Label>
+              </div>
+              {enableMusic && (
+                <p className="text-xs text-muted-foreground ml-6">
+                  Relaxing jazz and piano music will play softly in the background to help you focus.
+                </p>
+              )}
+            </div>
+
+            <Button
             type="submit"
             disabled={!task.trim() || (useCustom && !isValidCustomDuration)}
             className="w-full py-4 sm:py-6 text-base sm:text-lg bg-primary hover:bg-primary-glow gentle-transition group"

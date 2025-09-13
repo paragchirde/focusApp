@@ -9,7 +9,6 @@ import { Pause, Play, Square, RotateCcw, Plus } from "lucide-react";
 import { InterruptionDialog } from "./InterruptionDialog";
 import { Timeline } from "./Timeline";
 import { MusicPlayer } from "./MusicPlayer";
-import { MusicDialog } from "./MusicDialog";
 
 export interface TimelineEvent {
   id: string;
@@ -26,12 +25,13 @@ export interface TimelineEvent {
 interface FocusTimerProps {
   task: string;
   initialDuration: number;
+  enableMusic: boolean;
   onComplete: (summary: { focusedTime: number; interruptionCount: number; totalTime: number; timelineEvents: TimelineEvent[] }) => void;
   onReset: () => void;
   onStop: (summary: { focusedTime: number; interruptionCount: number; totalTime: number; timeline: TimelineEvent[] }) => void;
 }
 
-export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop }: FocusTimerProps) {
+export function FocusTimer({ task, initialDuration, enableMusic, onComplete, onReset, onStop }: FocusTimerProps) {
   const [timeLeft, setTimeLeft] = useState(initialDuration * 60); // Convert to seconds
   const [isRunning, setIsRunning] = useState(false);
   const [showInterruptionDialog, setShowInterruptionDialog] = useState(false);
@@ -40,8 +40,7 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
   const [showSessionEndDialog, setShowSessionEndDialog] = useState(false);
   const [extensionTime, setExtensionTime] = useState(5);
   const [totalTimeSpent, setTotalTimeSpent] = useState(initialDuration * 60);
-  const [showMusicDialog, setShowMusicDialog] = useState(false);
-  const [musicEnabled, setMusicEnabled] = useState(false);
+  const [musicEnabled, setMusicEnabled] = useState(enableMusic);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -207,12 +206,6 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
       setIsRunning(false);
       setShowInterruptionDialog(true);
     } else {
-      // Starting for the first time - show music dialog if not decided yet
-      if (timeLeft === totalDuration && !musicEnabled && !localStorage.getItem('focusTimer_musicDecision')) {
-        setShowMusicDialog(true);
-        return;
-      }
-      
       // Resuming
       setIsRunning(true);
       if (pauseStartTime) {
@@ -224,21 +217,6 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
         setTimeline(prev => [...prev, resumeEvent]);
       }
     }
-  };
-
-  const handleMusicConfirm = () => {
-    setMusicEnabled(true);
-    setIsMusicPlaying(true);
-    setShowMusicDialog(false);
-    setIsRunning(true);
-    localStorage.setItem('focusTimer_musicDecision', 'enabled');
-  };
-
-  const handleMusicDecline = () => {
-    setMusicEnabled(false);
-    setShowMusicDialog(false);
-    setIsRunning(true);
-    localStorage.setItem('focusTimer_musicDecision', 'disabled');
   };
 
   const handleMusicToggle = (isPlaying: boolean) => {
@@ -375,12 +353,11 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
         pauseDuration={pauseStartTime ? Math.floor((new Date().getTime() - pauseStartTime.getTime()) / 1000) : 0}
       />
 
-      {/* Music Dialog */}
-      <MusicDialog
-        open={showMusicDialog}
-        onOpenChange={setShowMusicDialog}
-        onConfirm={handleMusicConfirm}
-        onDecline={handleMusicDecline}
+      {/* Interruption Dialog */}
+      <InterruptionDialog
+        open={showInterruptionDialog}
+        onSubmit={handleInterruptionSubmit}
+        pauseDuration={pauseStartTime ? Math.floor((new Date().getTime() - pauseStartTime.getTime()) / 1000) : 0}
       />
 
       {/* Session End Dialog */}
