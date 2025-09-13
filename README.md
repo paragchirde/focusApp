@@ -1,4 +1,29 @@
-# Welcome to your Lovable project
+# Focus Timer - Mindful Productivity App
+
+A beautiful, Notion-inspired focus timer application designed to help you maintain deep focus while tracking interruptions and building healthy work habits.
+
+## 🎯 Purpose
+
+This tool helps you practice the Pomodoro Technique and mindful working by providing structured focus sessions with interruption tracking, break reminders, and detailed session analytics. Perfect for developers, students, and professionals who want to improve their concentration and productivity.
+
+## ✨ Key Features
+
+- **🎯 Task-focused Sessions**: Set specific tasks and durations for focused work
+- **⏰ Smart Timer**: Visual countdown with browser tab title updates
+- **🔔 Audio Alerts**: Sound notifications when sessions end
+- **📊 Interruption Tracking**: Log and analyze distractions during focus time
+- **🔄 Session Extension**: Extend sessions when you're in the flow
+- **☕ Break Management**: Guided short (5min), medium (15min), and long (25min) breaks
+- **📈 Detailed Analytics**: Complete session summaries with timeline and focus efficiency
+- **🎨 Calming Design**: Warm earth-tone color palette inspired by Notion's aesthetic
+- **📱 Responsive**: Works beautifully on desktop and mobile devices
+
+## 🌟 What Makes It Special
+
+- **Mindful Approach**: Encourages awareness of interruptions rather than just blocking them
+- **Flexible Sessions**: Extend sessions when you're productive, no rigid time constraints
+- **Beautiful UI**: Calm, distraction-free interface that promotes focus
+- **Detailed Insights**: Learn about your focus patterns and improve over time
 
 ## Project info
 
