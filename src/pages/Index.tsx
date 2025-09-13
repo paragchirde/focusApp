@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TaskInput } from "@/components/TaskInput";
 import { FocusTimer } from "@/components/FocusTimer";
 import { SessionComplete } from "@/components/SessionComplete";
+import { SessionStopped } from "@/components/SessionStopped";
 import { BreakTimer } from "@/components/BreakTimer";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,6 +10,7 @@ type AppState =
   | { type: 'input' }
   | { type: 'focus'; task: string; duration: number }
   | { type: 'complete'; task: string; duration: number }
+  | { type: 'stopped'; task: string; duration: number; summary: { focusedTime: number; interruptionCount: number } }
   | { type: 'break'; breakType: 'short' | 'medium' | 'long' };
 
 const Index = () => {
@@ -58,6 +60,21 @@ const Index = () => {
     setState({ type: 'input' });
   };
 
+  const handleStop = (summary: { focusedTime: number; interruptionCount: number }) => {
+    if (state.type === 'focus') {
+      setState({ 
+        type: 'stopped', 
+        task: state.task, 
+        duration: state.duration, 
+        summary 
+      });
+      toast({
+        title: "Session stopped",
+        description: `Focused for ${summary.focusedTime} minutes with ${summary.interruptionCount} interruptions`,
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -76,6 +93,7 @@ const Index = () => {
               initialDuration={state.duration}
               onComplete={handleSessionComplete}
               onReset={handleReset}
+              onStop={handleStop}
             />
           </div>
         )}
@@ -85,6 +103,19 @@ const Index = () => {
             <SessionComplete
               task={state.task}
               duration={state.duration}
+              onStartBreak={handleStartBreak}
+              onNewSession={handleNewSession}
+            />
+          </div>
+        )}
+
+        {state.type === 'stopped' && (
+          <div className="py-8">
+            <SessionStopped
+              task={state.task}
+              duration={state.duration}
+              focusedTime={state.summary.focusedTime}
+              interruptionCount={state.summary.interruptionCount}
               onStartBreak={handleStartBreak}
               onNewSession={handleNewSession}
             />

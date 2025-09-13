@@ -22,9 +22,10 @@ interface FocusTimerProps {
   initialDuration: number;
   onComplete: () => void;
   onReset: () => void;
+  onStop: (summary: { focusedTime: number; interruptionCount: number; timeline: TimelineEvent[] }) => void;
 }
 
-export function FocusTimer({ task, initialDuration, onComplete, onReset }: FocusTimerProps) {
+export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop }: FocusTimerProps) {
   const [timeLeft, setTimeLeft] = useState(initialDuration * 60); // Convert to seconds
   const [isRunning, setIsRunning] = useState(false);
   const [showInterruptionDialog, setShowInterruptionDialog] = useState(false);
@@ -79,6 +80,21 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset }: Focus
     };
     setTimeline(prev => [...prev, completeEvent]);
     onComplete();
+  };
+
+  const handleStop = () => {
+    setIsRunning(false);
+    const focusedTime = Math.floor((totalDuration - timeLeft) / 60); // in minutes
+    const interruptionCount = timeline.filter(event => event.type === 'interruption').length;
+    
+    const stopEvent: TimelineEvent = {
+      id: crypto.randomUUID(),
+      type: 'complete',
+      timestamp: new Date(),
+    };
+    const finalTimeline = [...timeline, stopEvent];
+    
+    onStop({ focusedTime, interruptionCount, timeline: finalTimeline });
   };
 
   const handlePlayPause = () => {
@@ -170,8 +186,8 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset }: Focus
               size="lg"
               className={`px-8 py-6 rounded-full text-lg gentle-transition ${
                 isRunning 
-                  ? 'bg-warning hover:bg-warning/90' 
-                  : 'bg-primary hover:bg-primary-glow'
+                  ? 'bg-muted hover:bg-muted/80 text-muted-foreground' 
+                  : 'bg-primary hover:bg-primary/90'
               }`}
             >
               {isRunning ? (
@@ -188,10 +204,20 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset }: Focus
             </Button>
 
             <Button
+              onClick={handleStop}
+              variant="outline"
+              size="lg"
+              className="px-6 py-6 rounded-full border hover:bg-muted gentle-transition"
+            >
+              <Square className="w-5 h-5 mr-2" />
+              Stop
+            </Button>
+
+            <Button
               onClick={onReset}
               variant="outline"
               size="lg"
-              className="px-6 py-6 rounded-full border-2 hover:border-primary gentle-transition"
+              className="px-6 py-6 rounded-full border hover:bg-muted gentle-transition"
             >
               <RotateCcw className="w-5 h-5 mr-2" />
               Reset
