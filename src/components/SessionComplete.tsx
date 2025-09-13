@@ -1,10 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Coffee, Play, RotateCcw } from "lucide-react";
+import { CheckCircle2, Coffee, Play, RotateCcw, Clock, Zap, Target } from "lucide-react";
+import { Timeline } from "./Timeline";
+import { TimelineEvent } from "./FocusTimer";
 
 interface SessionCompleteProps {
   task: string;
   duration: number;
+  focusedTime: number;
+  totalTime: number;
+  interruptionCount: number;
+  timelineEvents: TimelineEvent[];
   onStartBreak: (breakType: 'short' | 'medium' | 'long') => void;
   onNewSession: () => void;
 }
@@ -33,7 +39,28 @@ const BREAK_TYPES = [
   },
 ];
 
-export function SessionComplete({ task, duration, onStartBreak, onNewSession }: SessionCompleteProps) {
+const MOTIVATIONAL_QUOTES = [
+  "The secret of getting ahead is getting started. Great work on completing this session!",
+  "Focus is a matter of deciding what things you're not going to do. You chose wisely today.",
+  "Deep work is a skill that has great value today. You're building that muscle beautifully.",
+  "Excellence is never an accident. Your focused effort today moves you closer to mastery.",
+  "The best way to get started is to quit talking and begin doing. You did just that!",
+  "Success isn't just about what you accomplish, but what you inspire others to do through your example.",
+];
+
+export function SessionComplete({ 
+  task, 
+  duration, 
+  focusedTime, 
+  totalTime, 
+  interruptionCount, 
+  timelineEvents, 
+  onStartBreak, 
+  onNewSession 
+}: SessionCompleteProps) {
+  const focusEfficiency = Math.round((focusedTime / totalTime) * 100);
+  const extraTime = totalTime - duration;
+  const randomQuote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
   return (
     <div className="space-y-8">
       {/* Completion Card */}
@@ -51,29 +78,61 @@ export function SessionComplete({ task, duration, onStartBreak, onNewSession }: 
               {task}
             </h2>
             <p className="text-lg text-muted-foreground">
-              for {duration} minutes of deep work
+              Planned: {duration} minutes • Actual: {focusedTime} minutes focused
             </p>
           </div>
 
-          {/* Achievement Stats */}
-          <div className="bg-success/10 rounded-xl p-6 mb-8">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-semibold text-success">{duration}</div>
-                <div className="text-sm text-muted-foreground">Minutes</div>
+          {/* Motivational Quote */}
+          <div className="bg-primary/5 rounded-xl p-6 mb-8 border border-primary/10">
+            <p className="text-lg italic text-foreground leading-relaxed">
+              "{randomQuote}"
+            </p>
+          </div>
+
+          {/* Detailed Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-success/10 rounded-lg p-4 border border-success/20">
+              <div className="flex items-center justify-center mb-2">
+                <Target className="w-5 h-5 text-success" />
               </div>
-              <div>
-                <div className="text-2xl font-semibold text-success">1</div>
-                <div className="text-sm text-muted-foreground">Session</div>
+              <div className="text-2xl font-semibold text-success">{focusedTime} min</div>
+              <div className="text-sm text-muted-foreground">Pure Focus</div>
+            </div>
+            <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+              <div className="flex items-center justify-center mb-2">
+                <Clock className="w-5 h-5 text-primary" />
               </div>
-              <div>
-                <div className="text-2xl font-semibold text-success">100%</div>
-                <div className="text-sm text-muted-foreground">Focus</div>
+              <div className="text-2xl font-semibold text-primary">{totalTime} min</div>
+              <div className="text-sm text-muted-foreground">Total Time</div>
+            </div>
+            <div className="bg-warning/10 rounded-lg p-4 border border-warning/20">
+              <div className="flex items-center justify-center mb-2">
+                <Zap className="w-5 h-5 text-warning" />
               </div>
+              <div className="text-2xl font-semibold text-warning">{interruptionCount}</div>
+              <div className="text-sm text-muted-foreground">Interruptions</div>
+            </div>
+            <div className="bg-success/10 rounded-lg p-4 border border-success/20">
+              <div className="flex items-center justify-center mb-2">
+                <CheckCircle2 className="w-5 h-5 text-success" />
+              </div>
+              <div className="text-2xl font-semibold text-success">{focusEfficiency}%</div>
+              <div className="text-sm text-muted-foreground">Efficiency</div>
             </div>
           </div>
+
+          {extraTime > 0 && (
+            <div className="bg-accent/10 rounded-lg p-4 mb-8 border border-accent/20">
+              <p className="text-accent text-sm">
+                <strong>+{extraTime} minutes</strong> were added back to maintain your focus quality during interruptions
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Session Timeline */}
+      <Timeline events={timelineEvents} />
 
       {/* Break Options */}
       <Card className="card-shadow">

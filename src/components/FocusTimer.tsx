@@ -24,7 +24,7 @@ export interface TimelineEvent {
 interface FocusTimerProps {
   task: string;
   initialDuration: number;
-  onComplete: () => void;
+  onComplete: (summary: { focusedTime: number; interruptionCount: number; totalTime: number; timelineEvents: TimelineEvent[] }) => void;
   onReset: () => void;
   onStop: (summary: { focusedTime: number; interruptionCount: number; totalTime: number; timeline: TimelineEvent[] }) => void;
 }
@@ -118,8 +118,19 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
       type: 'complete',
       timestamp: new Date(),
     };
-    setTimeline(prev => [...prev, completeEvent]);
-    onComplete();
+    const updatedTimeline = [...timeline, completeEvent];
+    setTimeline(updatedTimeline);
+    
+    const focusedTime = Math.round(((totalTimeSpent - timeLeft) / 60));
+    const totalTime = Math.round(totalTimeSpent / 60);
+    const interruptionCount = timeline.filter(event => event.type === 'interruption').length;
+    
+    onComplete({
+      focusedTime,
+      interruptionCount,
+      totalTime,
+      timelineEvents: updatedTimeline
+    });
   };
 
   const handleSessionEnd = () => {
@@ -128,9 +139,20 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
       type: 'complete',
       timestamp: new Date(),
     };
-    setTimeline(prev => [...prev, completeEvent]);
+    const updatedTimeline = [...timeline, completeEvent];
+    setTimeline(updatedTimeline);
     setShowSessionEndDialog(false);
-    onComplete();
+    
+    const focusedTime = Math.round(((totalTimeSpent - timeLeft) / 60));
+    const totalTime = Math.round(totalTimeSpent / 60);
+    const interruptionCount = timeline.filter(event => event.type === 'interruption').length;
+    
+    onComplete({
+      focusedTime,
+      interruptionCount,
+      totalTime,
+      timelineEvents: updatedTimeline
+    });
   };
 
   const handleExtendSession = () => {

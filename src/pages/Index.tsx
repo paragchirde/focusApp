@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 type AppState = 
   | { type: 'input' }
   | { type: 'focus'; task: string; duration: number }
-  | { type: 'complete'; task: string; duration: number }
+  | { type: 'complete'; task: string; duration: number; summary: { focusedTime: number; interruptionCount: number; totalTime: number; timelineEvents: any[] } }
   | { type: 'stopped'; task: string; duration: number; summary: { focusedTime: number; interruptionCount: number; totalTime: number } }
   | { type: 'break'; breakType: 'short' | 'medium' | 'long' };
 
@@ -25,9 +25,14 @@ const Index = () => {
     });
   };
 
-  const handleSessionComplete = () => {
+  const handleSessionComplete = (summary: { focusedTime: number; interruptionCount: number; totalTime: number; timelineEvents: any[] }) => {
     if (state.type === 'focus') {
-      setState({ type: 'complete', task: state.task, duration: state.duration });
+      setState({ 
+        type: 'complete', 
+        task: state.task, 
+        duration: state.duration,
+        summary 
+      });
       toast({
         title: "🎉 Session completed!",
         description: "Congratulations on completing your focus session!",
@@ -103,6 +108,10 @@ const Index = () => {
             <SessionComplete
               task={state.task}
               duration={state.duration}
+              focusedTime={state.summary.focusedTime}
+              totalTime={state.summary.totalTime}
+              interruptionCount={state.summary.interruptionCount}
+              timelineEvents={state.summary.timelineEvents}
               onStartBreak={handleStartBreak}
               onNewSession={handleNewSession}
             />
