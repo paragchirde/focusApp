@@ -4,42 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Music, Pause, Play, SkipForward, Volume2, VolumeX } from "lucide-react";
 
-// Temporary solution: Use generated audio for ambient sounds
-const generateAmbientAudio = (frequency: number, duration: number = 30) => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  const gainNode = audioContext.createGain();
-  const oscillator = audioContext.createOscillator();
-  
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-  gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-  
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  
-  return { oscillator, gainNode, audioContext };
-};
-
 const MUSIC_TRACKS = [
   {
-    title: "Calm Ambient",
-    src: "ambient-calm", // Will be handled by Web Audio API
-    frequency: 220
+    title: "Soft Piano Music",
+    src: "https://res.cloudinary.com/phineas31/video/upload/v1757791085/soft-piano-music-312509_d2ezt2.mp3"
   },
   {
-    title: "Focus Tone",
-    src: "ambient-focus",
-    frequency: 440
+    title: "Jazz Club New Orleans",
+    src: "https://res.cloudinary.com/phineas31/video/upload/v1757791085/the-best-jazz-club-in-new-orleans-164472_yv4q8l.mp3"
   },
   {
-    title: "Deep Focus",
-    src: "ambient-deep",
-    frequency: 174
+    title: "Golden Whisper Jazz",
+    src: "https://res.cloudinary.com/phineas31/video/upload/v1757791084/background-jazz-golden-whisper-358520_cjpadt.mp3"
   },
   {
-    title: "Peaceful",
-    src: "ambient-peace",
-    frequency: 528
+    title: "Jazz Background",
+    src: "https://res.cloudinary.com/phineas31/video/upload/v1757791083/jazz-background-music-338663_gs0ssz.mp3"
   }
 ];
 
@@ -60,76 +40,85 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previousVolume = useRef(0.3);
 
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-
-  // Initialize Web Audio API for ambient sounds
+  // Initialize audio with CDN sources
   useEffect(() => {
     setIsLoading(true);
+    const audio = new Audio();
     
-    try {
-      const currentTrack = MUSIC_TRACKS[currentTrackIndex];
-      
-      // Create Web Audio API context for ambient sounds
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const gainNode = audioContext.createGain();
-      const oscillator = audioContext.createOscillator();
-      
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(currentTrack.frequency, audioContext.currentTime);
-      gainNode.gain.setValueAtTime(volume[0] * 0.1, audioContext.currentTime); // Very low volume for ambient
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      audioContextRef.current = audioContext;
-      oscillatorRef.current = oscillator;
-      gainNodeRef.current = gainNode;
-      
+    // Configure audio for CDN streaming
+    audio.crossOrigin = "anonymous";
+    audio.preload = "auto";
+    audio.volume = volume[0];
+    audio.loop = false;
+    
+    // Set source
+    audio.src = MUSIC_TRACKS[currentTrackIndex].src;
+    
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
       setIsLoading(false);
-      setDuration(30); // 30 second ambient sounds
-      
-      // Auto-start if timer is running
+      // Auto-start music if timer is running
       if (isTimerRunning && !isPlaying) {
         setIsPlaying(true);
         onMusicToggle(true);
-        oscillator.start();
+        audio.play().catch(console.error);
       }
-      
-    } catch (error) {
-      console.warn('Web Audio API not supported, disabling music');
+    };
+    
+    const handleCanPlayThrough = () => {
       setIsLoading(false);
-      setIsPlaying(false);
-      onMusicToggle(false);
-    }
+      // Auto-start music if timer is running
+      if (isTimerRunning && !isPlaying) {
+        setIsPlaying(true);
+        onMusicToggle(true);
+        audio.play().catch(console.error);
+      }
+    };
+    
+    const handleWaiting = () => setIsLoading(true);
+    
+    const handleError = (e: Event) => {
+      console.warn('Audio loading error:', e);
+      setIsLoading(false);
+      // Try next track on error
+      setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
+    };
+    
+    const handleEnded = () => {
+      setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
+    };
+
+    // Add event listeners
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('canplaythrough', handleCanPlayThrough);
+    audio.addEventListener('waiting', handleWaiting);
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('ended', handleEnded);
+    
+    audioRef.current = audio;
 
     return () => {
-      if (oscillatorRef.current) {
-        try {
-          oscillatorRef.current.stop();
-        } catch (e) {
-          // Oscillator already stopped
-        }
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+      audio.removeEventListener('waiting', handleWaiting);
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
     };
   }, [currentTrackIndex, volume, isTimerRunning, isPlaying, onMusicToggle]);
 
   // Sync with timer state
   useEffect(() => {
-    if (!oscillatorRef.current || !audioContextRef.current) return;
+    if (!audioRef.current) return;
 
     if (isTimerRunning && isPlaying) {
-      if (audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
-      }
+      audioRef.current.play().catch(console.error);
     } else {
-      if (audioContextRef.current.state === 'running') {
-        audioContextRef.current.suspend();
-      }
+      audioRef.current.pause();
     }
   }, [isTimerRunning, isPlaying]);
 
@@ -137,20 +126,12 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
     const newIsPlaying = !isPlaying;
     setIsPlaying(newIsPlaying);
     onMusicToggle(newIsPlaying);
-    
-    if (!audioContextRef.current) return;
-    
-    if (newIsPlaying) {
-      audioContextRef.current.resume();
-    } else {
-      audioContextRef.current.suspend();
-    }
   };
 
   const handleVolumeChange = (newVolume: number[]) => {
     setVolume(newVolume);
-    if (gainNodeRef.current) {
-      gainNodeRef.current.gain.setValueAtTime(newVolume[0] * 0.1, audioContextRef.current?.currentTime || 0);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume[0];
     }
     if (newVolume[0] > 0 && isMuted) {
       setIsMuted(false);
@@ -158,17 +139,17 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
   };
 
   const toggleMute = () => {
-    if (!gainNodeRef.current || !audioContextRef.current) return;
+    if (!audioRef.current) return;
     
     if (isMuted) {
       setIsMuted(false);
       setVolume([previousVolume.current]);
-      gainNodeRef.current.gain.setValueAtTime(previousVolume.current * 0.1, audioContextRef.current.currentTime);
+      audioRef.current.volume = previousVolume.current;
     } else {
       previousVolume.current = volume[0];
       setIsMuted(true);
       setVolume([0]);
-      gainNodeRef.current.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+      audioRef.current.volume = 0;
     }
   };
 
