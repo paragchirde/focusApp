@@ -6,20 +6,20 @@ import { Music, Pause, Play, SkipForward, Volume2, VolumeX } from "lucide-react"
 
 const MUSIC_TRACKS = [
   {
-    title: "Golden Whisper Jazz",
-    src: "/music/background-jazz-golden-whisper.mp3"
+    title: "Focus Jazz Cafe",
+    src: "https://cdn.pixabay.com/audio/2023/01/04/audio_e6ecb06e79.mp3"
   },
   {
-    title: "Jazz Background",
-    src: "/music/jazz-background-music.mp3"
+    title: "Lofi Study Beats",
+    src: "https://cdn.pixabay.com/audio/2022/10/25/audio_78ca2ba3fe.mp3"
   },
   {
-    title: "Soft Piano",
-    src: "/music/soft-piano-music.mp3"
+    title: "Calm Piano",
+    src: "https://cdn.pixabay.com/audio/2022/11/27/audio_1e4a091dd9.mp3"
   },
   {
-    title: "New Orleans Jazz Club",
-    src: "/music/jazz-club-new-orleans.mp3"
+    title: "Peaceful Background",
+    src: "https://cdn.pixabay.com/audio/2023/02/28/audio_eb80b67cea.mp3"
   }
 ];
 
@@ -40,12 +40,19 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previousVolume = useRef(0.3);
 
-  // Initialize audio
+  // Initialize audio with CDN optimization
   useEffect(() => {
     setIsLoading(true);
-    const audio = new Audio(MUSIC_TRACKS[currentTrackIndex].src);
+    const audio = new Audio();
+    
+    // Optimize for CDN streaming
+    audio.crossOrigin = "anonymous";
+    audio.preload = "auto";
     audio.volume = volume[0];
     audio.loop = false;
+    
+    // Set source after configuring
+    audio.src = MUSIC_TRACKS[currentTrackIndex].src;
     
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleLoadedMetadata = () => {
@@ -68,6 +75,10 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
       }
     };
     const handleWaiting = () => setIsLoading(true);
+    const handleError = (e: Event) => {
+      console.warn('Audio loading error, trying next track:', e);
+      setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
+    };
     const handleEnded = () => {
       setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
     };
@@ -76,6 +87,7 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('canplaythrough', handleCanPlayThrough);
     audio.addEventListener('waiting', handleWaiting);
+    audio.addEventListener('error', handleError);
     audio.addEventListener('ended', handleEnded);
     
     audioRef.current = audio;
@@ -85,6 +97,7 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('canplaythrough', handleCanPlayThrough);
       audio.removeEventListener('waiting', handleWaiting);
+      audio.removeEventListener('error', handleError);
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
     };
