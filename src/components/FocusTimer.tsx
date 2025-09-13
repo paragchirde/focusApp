@@ -206,8 +206,12 @@ export function FocusTimer({ task, initialDuration, enableMusic, onComplete, onR
       setIsRunning(false);
       setShowInterruptionDialog(true);
     } else {
-      // Resuming
+      // Starting timer - auto-start music if enabled
       setIsRunning(true);
+      if (enableMusic && !isMusicPlaying) {
+        setIsMusicPlaying(true);
+      }
+      
       if (pauseStartTime) {
         const resumeEvent: TimelineEvent = {
           id: crypto.randomUUID(),
