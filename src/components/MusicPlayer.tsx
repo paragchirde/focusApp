@@ -51,8 +51,22 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
       setIsLoading(false);
+      // Auto-start music if timer is running
+      if (isTimerRunning && !isPlaying) {
+        setIsPlaying(true);
+        onMusicToggle(true);
+        audio.play().catch(console.error);
+      }
     };
-    const handleCanPlayThrough = () => setIsLoading(false);
+    const handleCanPlayThrough = () => {
+      setIsLoading(false);
+      // Auto-start music if timer is running
+      if (isTimerRunning && !isPlaying) {
+        setIsPlaying(true);
+        onMusicToggle(true);
+        audio.play().catch(console.error);
+      }
+    };
     const handleWaiting = () => setIsLoading(true);
     const handleEnded = () => {
       setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
@@ -76,16 +90,21 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
     };
   }, [currentTrackIndex, volume]);
 
-  // Sync with timer state
+  // Sync with timer state and auto-start music
   useEffect(() => {
     if (!audioRef.current) return;
 
-    if (isTimerRunning && isPlaying) {
+    if (isTimerRunning) {
+      // Auto-start music when timer is running
+      if (!isPlaying) {
+        setIsPlaying(true);
+        onMusicToggle(true);
+      }
       audioRef.current.play().catch(console.error);
     } else {
       audioRef.current.pause();
     }
-  }, [isTimerRunning, isPlaying]);
+  }, [isTimerRunning, isPlaying, onMusicToggle]);
 
   const togglePlayPause = () => {
     const newIsPlaying = !isPlaying;
