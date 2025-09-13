@@ -6,7 +6,8 @@ import {
   RotateCcw, 
   CheckCircle2, 
   AlertTriangle,
-  Clock
+  Clock,
+  Plus
 } from "lucide-react";
 import { TimelineEvent } from "./FocusTimer";
 
@@ -29,6 +30,8 @@ export function Timeline({ events }: TimelineProps) {
         return <CheckCircle2 className="w-4 h-4 text-success" />;
       case 'interruption':
         return <AlertTriangle className="w-4 h-4 text-warning" />;
+      case 'extension':
+        return <Plus className="w-4 h-4 text-primary" />;
       default:
         return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
@@ -46,6 +49,8 @@ export function Timeline({ events }: TimelineProps) {
         return 'Session Complete';
       case 'interruption':
         return 'Interruption';
+      case 'extension':
+        return 'Session Extended';
       default:
         return 'Event';
     }
@@ -59,6 +64,7 @@ export function Timeline({ events }: TimelineProps) {
       case 'interruption':
         return 'timeline-dot timeline-dot-pause';
       case 'resume':
+      case 'extension':
         return 'timeline-dot timeline-dot-resume';
       case 'complete':
         return 'timeline-dot timeline-dot-complete';
@@ -140,6 +146,14 @@ export function Timeline({ events }: TimelineProps) {
                               Time Added Back
                             </Badge>
                           )}
+                        </div>
+                      )}
+                      
+                      {event.details.extensionTime !== undefined && (
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-primary text-primary-foreground text-xs">
+                            Extended by {event.details.extensionTime} minutes
+                          </Badge>
                         </div>
                       )}
                     </div>

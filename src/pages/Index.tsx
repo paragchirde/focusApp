@@ -10,7 +10,7 @@ type AppState =
   | { type: 'input' }
   | { type: 'focus'; task: string; duration: number }
   | { type: 'complete'; task: string; duration: number }
-  | { type: 'stopped'; task: string; duration: number; summary: { focusedTime: number; interruptionCount: number } }
+  | { type: 'stopped'; task: string; duration: number; summary: { focusedTime: number; interruptionCount: number; totalTime: number } }
   | { type: 'break'; breakType: 'short' | 'medium' | 'long' };
 
 const Index = () => {
@@ -60,7 +60,7 @@ const Index = () => {
     setState({ type: 'input' });
   };
 
-  const handleStop = (summary: { focusedTime: number; interruptionCount: number }) => {
+  const handleStop = (summary: { focusedTime: number; interruptionCount: number; totalTime: number }) => {
     if (state.type === 'focus') {
       setState({ 
         type: 'stopped', 
@@ -70,7 +70,7 @@ const Index = () => {
       });
       toast({
         title: "Session stopped",
-        description: `Focused for ${summary.focusedTime} minutes with ${summary.interruptionCount} interruptions`,
+        description: `Focused for ${summary.focusedTime} of ${summary.totalTime} minutes with ${summary.interruptionCount} interruptions`,
       });
     }
   };
@@ -116,6 +116,7 @@ const Index = () => {
               duration={state.duration}
               focusedTime={state.summary.focusedTime}
               interruptionCount={state.summary.interruptionCount}
+              totalTime={state.summary.totalTime}
               onStartBreak={handleStartBreak}
               onNewSession={handleNewSession}
             />

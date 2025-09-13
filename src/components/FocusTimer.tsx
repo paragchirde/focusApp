@@ -2,18 +2,22 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Pause, Play, Square, RotateCcw } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Pause, Play, Square, RotateCcw, Plus } from "lucide-react";
 import { InterruptionDialog } from "./InterruptionDialog";
 import { Timeline } from "./Timeline";
 
 export interface TimelineEvent {
   id: string;
-  type: 'start' | 'pause' | 'resume' | 'complete' | 'interruption';
+  type: 'start' | 'pause' | 'resume' | 'complete' | 'interruption' | 'extension';
   timestamp: Date;
   details?: {
     reason?: string;
     pauseDuration?: number;
     addedBack?: boolean;
+    extensionTime?: number;
   };
 }
 
@@ -22,7 +26,7 @@ interface FocusTimerProps {
   initialDuration: number;
   onComplete: () => void;
   onReset: () => void;
-  onStop: (summary: { focusedTime: number; interruptionCount: number; timeline: TimelineEvent[] }) => void;
+  onStop: (summary: { focusedTime: number; interruptionCount: number; totalTime: number; timeline: TimelineEvent[] }) => void;
 }
 
 export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop }: FocusTimerProps) {
@@ -31,19 +35,45 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
   const [showInterruptionDialog, setShowInterruptionDialog] = useState(false);
   const [pauseStartTime, setPauseStartTime] = useState<Date | null>(null);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
+  const [showSessionEndDialog, setShowSessionEndDialog] = useState(false);
+  const [extensionTime, setExtensionTime] = useState(5);
+  const [totalTimeSpent, setTotalTimeSpent] = useState(initialDuration * 60);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const originalTitle = useRef<string>('');
   const totalDuration = initialDuration * 60;
 
-  // Add initial start event
+  // Initialize and manage tab title
   useEffect(() => {
+    originalTitle.current = document.title;
+    
+    // Create audio element
+    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmId');
+    audioRef.current.volume = 0.5;
+
     const startEvent: TimelineEvent = {
       id: crypto.randomUUID(),
       type: 'start',
       timestamp: new Date(),
     };
     setTimeline([startEvent]);
+
+    return () => {
+      document.title = originalTitle.current;
+    };
   }, []);
+
+  // Update tab title based on timer state
+  useEffect(() => {
+    if (isRunning) {
+      document.title = `${formatTime(timeLeft)} - ${task}`;
+    } else if (timeLeft > 0) {
+      document.title = "Focus ON - Paused";
+    } else {
+      document.title = originalTitle.current;
+    }
+  }, [isRunning, timeLeft, task]);
 
   // Timer logic
   useEffect(() => {
@@ -52,7 +82,7 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
-            handleComplete();
+            handleTimerEnd();
             return 0;
           }
           return prev - 1;
@@ -72,6 +102,16 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
     };
   }, [isRunning, timeLeft]);
 
+  const handleTimerEnd = () => {
+    // Play sound notification
+    if (audioRef.current) {
+      audioRef.current.play().catch(console.error);
+    }
+    
+    // Show session end dialog
+    setShowSessionEndDialog(true);
+  };
+
   const handleComplete = () => {
     const completeEvent: TimelineEvent = {
       id: crypto.randomUUID(),
@@ -82,10 +122,40 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
     onComplete();
   };
 
+  const handleSessionEnd = () => {
+    const completeEvent: TimelineEvent = {
+      id: crypto.randomUUID(),
+      type: 'complete',
+      timestamp: new Date(),
+    };
+    setTimeline(prev => [...prev, completeEvent]);
+    setShowSessionEndDialog(false);
+    onComplete();
+  };
+
+  const handleExtendSession = () => {
+    const extensionSeconds = extensionTime * 60;
+    setTimeLeft(prev => prev + extensionSeconds);
+    setTotalTimeSpent(prev => prev + extensionSeconds);
+    
+    const extensionEvent: TimelineEvent = {
+      id: crypto.randomUUID(),
+      type: 'extension',
+      timestamp: new Date(),
+      details: {
+        extensionTime: extensionTime,
+      },
+    };
+    setTimeline(prev => [...prev, extensionEvent]);
+    setShowSessionEndDialog(false);
+    setIsRunning(true);
+  };
+
   const handleStop = () => {
     setIsRunning(false);
-    const focusedTime = Math.floor((totalDuration - timeLeft) / 60); // in minutes
+    const focusedTime = Math.floor((totalTimeSpent - timeLeft) / 60); // in minutes
     const interruptionCount = timeline.filter(event => event.type === 'interruption').length;
+    const totalTime = Math.floor(totalTimeSpent / 60); // in minutes
     
     const stopEvent: TimelineEvent = {
       id: crypto.randomUUID(),
@@ -94,7 +164,7 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
     };
     const finalTimeline = [...timeline, stopEvent];
     
-    onStop({ focusedTime, interruptionCount, timeline: finalTimeline });
+    onStop({ focusedTime, interruptionCount, totalTime, timeline: finalTimeline });
   };
 
   const handlePlayPause = () => {
@@ -140,6 +210,7 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
     // Add time back if requested
     if (addTimeBack) {
       setTimeLeft(prev => prev + pauseDuration);
+      setTotalTimeSpent(prev => prev + pauseDuration);
     }
 
     setPauseStartTime(null);
@@ -235,6 +306,44 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
         onSubmit={handleInterruptionSubmit}
         pauseDuration={pauseStartTime ? Math.floor((new Date().getTime() - pauseStartTime.getTime()) / 1000) : 0}
       />
+
+      {/* Session End Dialog */}
+      <AlertDialog open={showSessionEndDialog} onOpenChange={setShowSessionEndDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>🎉 Timer Completed!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your focus session for "{task}" has ended. Would you like to mark this session as complete or extend it?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="extension-time">Extend session by (minutes):</Label>
+              <Input
+                id="extension-time"
+                type="number"
+                min="1"
+                max="60"
+                value={extensionTime}
+                onChange={(e) => setExtensionTime(parseInt(e.target.value) || 5)}
+                className="w-full"
+              />
+            </div>
+          </div>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogAction
+              onClick={handleExtendSession}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Extend by {extensionTime} min
+            </AlertDialogAction>
+            <AlertDialogCancel onClick={handleSessionEnd}>
+              Complete Session
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

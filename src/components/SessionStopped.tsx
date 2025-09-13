@@ -7,6 +7,7 @@ interface SessionStoppedProps {
   duration: number;
   focusedTime: number;
   interruptionCount: number;
+  totalTime: number;
   onStartBreak: (breakType: 'short' | 'medium' | 'long') => void;
   onNewSession: () => void;
 }
@@ -16,10 +17,11 @@ export function SessionStopped({
   duration, 
   focusedTime, 
   interruptionCount, 
+  totalTime,
   onStartBreak, 
   onNewSession 
 }: SessionStoppedProps) {
-  const focusPercentage = Math.round((focusedTime / duration) * 100);
+  const focusPercentage = Math.round((focusedTime / totalTime) * 100);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -38,10 +40,14 @@ export function SessionStopped({
           </div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div className="p-6 bg-secondary rounded-lg border border-border">
               <div className="text-2xl font-semibold text-foreground mb-1">{focusedTime} min</div>
               <div className="notion-text-muted">Focused Time</div>
+            </div>
+            <div className="p-6 bg-secondary rounded-lg border border-border">
+              <div className="text-2xl font-semibold text-foreground mb-1">{totalTime} min</div>
+              <div className="notion-text-muted">Total Time</div>
             </div>
             <div className="p-6 bg-secondary rounded-lg border border-border">
               <div className="text-2xl font-semibold text-foreground mb-1">{interruptionCount}</div>
