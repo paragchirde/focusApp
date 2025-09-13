@@ -57,6 +57,12 @@ export function FocusTimer({ task, initialDuration, onComplete, onReset, onStop 
     audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIdBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmId');
     audioRef.current.volume = 0.5;
 
+    // Restore music preference from localStorage
+    const musicDecision = localStorage.getItem('focusTimer_musicDecision');
+    if (musicDecision === 'enabled') {
+      setMusicEnabled(true);
+    }
+
     const startEvent: TimelineEvent = {
       id: crypto.randomUUID(),
       type: 'start',
