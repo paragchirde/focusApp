@@ -75,6 +75,10 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
     };
     
     const handleEnded = () => {
+      // Auto-play next track if music was playing
+      if (isPlaying) {
+        setIsLoading(true);
+      }
       setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
     };
 
@@ -99,7 +103,7 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
     };
   }, [currentTrackIndex, volume]);
 
-  // Auto-start music when timer starts (separate effect to avoid loops)
+  // Auto-start music when timer starts or auto-play next track
   useEffect(() => {
     if (!audioRef.current || isLoading) return;
     
@@ -107,7 +111,12 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
       setIsPlaying(true);
       onMusicToggle(true);
     }
-  }, [isTimerRunning, isLoading]);
+    
+    // Auto-play next track if music was already playing
+    if (isPlaying && !isLoading) {
+      audioRef.current.play().catch(console.error);
+    }
+  }, [isTimerRunning, isLoading, currentTrackIndex]);
 
   // Sync with timer state
   useEffect(() => {
@@ -152,6 +161,10 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
   };
 
   const nextTrack = () => {
+    // Show loading state when manually skipping tracks
+    if (isPlaying) {
+      setIsLoading(true);
+    }
     setCurrentTrackIndex((prev) => (prev + 1) % MUSIC_TRACKS.length);
   };
 
