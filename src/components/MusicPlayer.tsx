@@ -54,10 +54,20 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
     // Set source
     audio.src = MUSIC_TRACKS[currentTrackIndex].src;
     
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleTimeUpdate = () => {
+      // Only update if we have valid duration to prevent timeline issues
+      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        setCurrentTime(audio.currentTime);
+      }
+    };
     
     const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
+      // Ensure duration is valid before setting
+      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      } else {
+        setDuration(0);
+      }
       setIsLoading(false);
     };
     
@@ -266,7 +276,10 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
               <div className="w-full bg-muted/30 rounded-full h-1">
                 <div 
                   className="bg-primary h-1 rounded-full transition-all duration-300"
-                  style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+                  style={{ 
+                    width: `${duration > 0 && currentTime <= duration ? 
+                      Math.min((currentTime / duration) * 100, 100) : 0}%` 
+                  }}
                 />
               </div>
             </div>
