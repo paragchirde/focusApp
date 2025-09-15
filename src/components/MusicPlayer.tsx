@@ -111,7 +111,7 @@ export function MusicPlayer({ isTimerRunning, onMusicToggle }: MusicPlayerProps)
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
     };
-  }, [currentTrackIndex, volume]);
+  }, [currentTrackIndex]);
 
   // Auto-start music when timer starts or auto-play next track
   useEffect(() => {
